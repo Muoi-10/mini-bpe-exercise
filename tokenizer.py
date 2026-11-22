@@ -10,6 +10,8 @@ class BasicTokenizer:
             self.merges[top_pair] = i + 256
             byte_txt = self.merge(byte_txt, top_pair)
 
+        self.rev_merges = {v: k for k, v in self.merges.items()}
+
     def merge(self, text, pair):
         new_txt = []
         skip_next = False
@@ -49,7 +51,22 @@ class BasicTokenizer:
 
         return text
 
-    def decode(self, ids): ...
+    def decode(self, ids):
+        change = True
+        while change:
+            new_ids = []
+            change = False
+            for id in ids:
+                if self.rev_merges.get(id):
+                    new_ids += list(self.rev_merges[id])
+                    change = True
+                else:
+                    new_ids.append(id)
+
+            ids = new_ids.copy()
+        text = bytes(ids).decode("utf-8")
+
+        return text
 
 
 def count_pair(text):
@@ -64,4 +81,5 @@ def count_pair(text):
 tokenizer = BasicTokenizer()
 tokenizer.train("ă ơ ơ hsdf????", 260)
 print(tokenizer.merges)
-print(tokenizer.encode("?? ơ ơ"))
+a = tokenizer.encode("?? ơ ơ")
+print(tokenizer.decode(a))
