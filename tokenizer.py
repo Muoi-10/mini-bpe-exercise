@@ -2,10 +2,11 @@ class BasicTokenizer:
     def train(self, text, vocabb_size, verbose=False): ...
 
     def encode(self, text):
-        return list(text.encode("utf-8"))
+        return text.encode("utf-8")
 
-    def decode(self, ids): ...
+    def decode(self, ids):
+        return ids.decode("utf-8")
 
 
 tokenizer = BasicTokenizer()
-print(tokenizer.encode("hii@ ô ư ă, ă"))
+print(tokenizer.decode(tokenizer.encode("hii@ ô ư ă, ă")))
