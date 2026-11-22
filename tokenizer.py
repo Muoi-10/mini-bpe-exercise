@@ -1,11 +1,9 @@
 class BasicTokenizer:
     def train(self, text, vocabb_size, verbose=False): ...
 
-    def encode(self, text):
-        return text.encode("utf-8")
+    def encode(self, text): ...
 
-    def decode(self, ids):
-        return ids.decode("utf-8")
+    def decode(self, ids): ...
 
 
 tokenizer = BasicTokenizer()
