@@ -26,7 +26,28 @@ class BasicTokenizer:
             new_txt.append(text[-1])
         return new_txt
 
-    def encode(self, text): ...
+    def encode(self, text):
+        text = list(text.encode("utf-8"))
+        change = True
+        while change:
+            new_txt = []
+            change = False
+            skip_next = False
+            for pair in zip(text, text[1:]):
+                if skip_next:
+                    skip_next = False
+                    continue
+                if self.merges.get(pair):
+                    new_txt.append(self.merges[pair])
+                    change = True
+                    skip_next = True
+                else:
+                    new_txt.append(pair[0])
+            if not skip_next:
+                new_txt.append(text[-1])
+            text = new_txt.copy()
+
+        return text
 
     def decode(self, ids): ...
 
@@ -42,4 +63,5 @@ def count_pair(text):
 
 tokenizer = BasicTokenizer()
 tokenizer.train("ă ơ ơ hsdf????", 260)
-tokenizer.merges
+print(tokenizer.merges)
+print(tokenizer.encode("?? ơ ơ"))
