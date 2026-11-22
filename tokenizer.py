@@ -1,5 +1,30 @@
 class BasicTokenizer:
-    def train(self, text, vocabb_size, verbose=False): ...
+    def train(self, text, vocab_size, verbose=False):
+        self.merges = dict()
+        vocab = [i for i in range(256)]
+        merge_num = vocab_size - 256
+        byte_txt = list(text.encode("utf-8"))
+        for i in range(merge_num):
+            top_pair = count_pair(byte_txt)[0][0]
+            vocab.append(top_pair)
+            self.merges[top_pair] = i + 256
+            byte_txt = self.merge(byte_txt, top_pair)
+
+    def merge(self, text, pair):
+        new_txt = []
+        skip_next = False
+        for i in range(len(text) - 1):
+            if skip_next:
+                skip_next = False
+                continue
+            if text[i : i + 2] == list(pair):
+                new_txt.append(self.merges[pair])
+                skip_next = True
+            else:
+                new_txt.append(text[i])
+        if not skip_next:
+            new_txt.append(text[-1])
+        return new_txt
 
     def encode(self, text): ...
 
@@ -16,4 +41,5 @@ def count_pair(text):
 
 
 tokenizer = BasicTokenizer()
-print(tokenizer.decode(tokenizer.encode("hii@ ô ư ă, ă")))
+tokenizer.train("ă ơ ơ hsdf????", 260)
+tokenizer.merges
