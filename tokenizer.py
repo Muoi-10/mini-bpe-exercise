@@ -1,9 +1,11 @@
 class BasicTokenizer:
     def train(self, text, vocabb_size, verbose=False): ...
 
-    def encode(self, text): ...
+    def encode(self, text):
+        return list(text.encode("utf-8"))
 
     def decode(self, ids): ...
 
 
-tokenizer = 1
+tokenizer = BasicTokenizer()
+print(tokenizer.encode("hii@ ô ư ă, ă"))
