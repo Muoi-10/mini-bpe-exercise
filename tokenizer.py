@@ -1,3 +1,6 @@
+import regex as re
+
+
 class BasicTokenizer:
     def train(self, text, vocab_size, verbose=False):
         self.merges = dict()
@@ -11,6 +14,8 @@ class BasicTokenizer:
             byte_txt = self.merge(byte_txt, top_pair)
 
         self.rev_merges = {v: k for k, v in self.merges.items()}
+        if verbose:
+            self.visual_mer()
 
     def merge(self, text, pair):
         new_txt = []
@@ -91,5 +96,11 @@ with open("taylorswift.txt", "r", encoding="utf-8") as f:
     content = f.read()
 
 tokenizer = BasicTokenizer()
-tokenizer.train("hello uw ơ ???? jhqiuwyeryt187243", 270)
-tokenizer.visual_mer()
+tokenizer.train(content, 270, verbose=True)
+
+GPT4_SPLIT_PATTERN = r"""'(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+"""
+
+pattern = re.compile(GPT4_SPLIT_PATTERN)
+text = "Archived from the original"
+splitted = re.findall(pattern, text)
+print(splitted)
