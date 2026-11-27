@@ -1,12 +1,12 @@
 class BasicTokenizer:
     def train(self, text, vocab_size, verbose=False):
         self.merges = dict()
-        self.vocab = [i for i in range(256)]
+        self.vocab = [bytes([i]) for i in range(256)]
         merge_num = vocab_size - 256
         byte_txt = list(text.encode("utf-8"))
         for i in range(merge_num):
             top_pair = count_pair(byte_txt)[0][0]
-            self.vocab.append(top_pair)
+            self.vocab.append(self.vocab[top_pair[0]] + self.vocab[top_pair[1]])
             self.merges[top_pair] = i + 256
             byte_txt = self.merge(byte_txt, top_pair)
 
@@ -65,6 +65,16 @@ class BasicTokenizer:
 
         return text
 
+    def visual_mer(self):
+        for pair, mer in self.merges.items():
+            print(
+                self.vocab[pair[0]],
+                "+",
+                self.vocab[pair[1]],
+                "=",
+                self.vocab[mer],
+            )
+
 
 def count_pair(text):
     """text in bytes"""
@@ -80,7 +90,6 @@ tokenizer = BasicTokenizer()
 with open("taylorswift.txt", "r", encoding="utf-8") as f:
     content = f.read()
 
-tokenizer.train(content, 1000)
-print(tokenizer.merges)
-a = tokenizer.encode("?? ơ ơ")
-print(tokenizer.decode(a))
+tokenizer = BasicTokenizer()
+tokenizer.train("hello uw ơ ???? jhqiuwyeryt187243", 270)
+tokenizer.visual_mer()
