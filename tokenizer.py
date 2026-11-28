@@ -198,6 +198,7 @@ class GPT4_tokenizer(RegexTokenizer):
         self.merges = self.recover_merges(enc._mergeable_ranks)
         self.byte_shuffle = {i: enc._mergeable_ranks[bytes([i])] for i in range(256)}
         self.inverse_byte_shuffle = {v: k for k, v in self.byte_shuffle.items()}
+        self.inverse_merges = {v: k for k, v in self.merges.items()}
 
     def encode(self, text):
         GPT4_SPLIT_PATTERN = r"""'(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+"""
@@ -228,8 +229,33 @@ class GPT4_tokenizer(RegexTokenizer):
 
         return [num for row in byte_txt_lst for num in row]
 
+    def decode(self, txt_lst): ...
+
     def convert_to_gpt(self, byte_txt):
         new = [self.byte_shuffle[c] for c in list(byte_txt)]
+        return new
+
+    def decode(self, ids):
+        change = True
+        while change:
+            new_ids = []
+            change = False
+            for id in ids:
+                if self.inverse_merges.get(id):
+                    new_ids += list(self.inverse_merges[id])
+                    change = True
+                else:
+                    new_ids.append(id)
+
+            ids = new_ids.copy()
+        ids = self.convert_to_utf(ids)
+        print(ids)
+        text = bytes(ids).decode("utf-8")
+
+        return text
+
+    def convert_to_utf(self, ids):
+        new = [self.inverse_byte_shuffle[c] for c in list(ids)]
         return new
 
     def bpe(self, mergeable_ranks, token, max_rank):
@@ -274,4 +300,5 @@ with open("taylorswift.txt", "r", encoding="utf-8") as f:
 enc = tiktoken.get_encoding("cl100k_base")  # this is the GPT-4 tokenizere
 gpt_tokenizer = GPT4_tokenizer()
 byte_txt = "hello".encode("utf-8")
-print(gpt_tokenizer.encode("hello world!!!? (안녕하세요!) lol123 😉"))
+en = gpt_tokenizer.encode("hello world!!!? (안녕하세요!) lol123 😉")
+print(gpt_tokenizer.decode(en))
